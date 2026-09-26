@@ -103,7 +103,7 @@ const Almacen = {
   exportarJSON() {
     const contenido = JSON.stringify(Object.assign({ exportado: new Date().toISOString() }, this.datos), null, 2);
     const blob = new Blob([contenido], { type: 'application/json' });
-    Util.descargarBlob(blob, `respaldo_mineragest_${Util.hoyISO()}.json`);
+    return Util.guardarArchivo(blob, `respaldo_mineragest_${Util.hoyISO()}.json`);
   },
 
   /** Reemplaza todos los datos con el contenido de un respaldo JSON. Lanza error si no es válido. */

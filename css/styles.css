@@ -152,7 +152,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 .barra-superior {
   position: sticky;
-  top: 0;
+  top: env(safe-area-inset-top, 0px);
   z-index: 20;
   display: flex;
   align-items: center;
@@ -517,6 +517,9 @@ dialog .form-acciones { justify-content: flex-end; }
 .toast.visible { opacity: 1; transform: none; }
 .toast-error { border-left-color: #e5534b; }
 .toast-info { border-left-color: var(--dorado); }
+
+/* Dentro de claude.ai no hay diálogo de impresión */
+.en-artifact [data-imprimir], .en-artifact #btn-imprimir-todo { display: none; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1100px) {

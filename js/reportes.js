@@ -73,12 +73,13 @@ const Excel = {
   },
 
   /** hojas: [{ nombre, hoja }] */
-  descargar(hojas, nombreBase) {
+  async descargar(hojas, nombreBase) {
     const libro = XLSX.utils.book_new();
     hojas.forEach(h => XLSX.utils.book_append_sheet(libro, h.hoja, h.nombre.slice(0, 31)));
     const nombre = `${nombreBase}_${Util.hoyISO()}.xlsx`;
-    XLSX.writeFile(libro, nombre);
-    Util.toast(`Archivo descargado: ${nombre}`);
+    const contenido = XLSX.write(libro, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([contenido], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    if (await Util.guardarArchivo(blob, nombre)) Util.toast(`Archivo descargado: ${nombre}`);
   }
 };
 

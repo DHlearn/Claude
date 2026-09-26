@@ -184,6 +184,32 @@ const Util = {
     });
   },
 
+  /**
+   * Entrega un archivo al usuario. Dentro de claude.ai usa la capacidad
+   * "downloads" (el visor pide confirmación); en el navegador normal usa un enlace.
+   * Devuelve true si el archivo se entregó.
+   */
+  async guardarArchivo(blob, nombreArchivo) {
+    if (window.claude && typeof window.claude.use === 'function') {
+      const descargas = await window.claude.use('downloads');
+      if (!descargas) {
+        Util.toast('La descarga de archivos no está disponible en esta vista.', 'error');
+        return false;
+      }
+      try {
+        await descargas.save({ filename: nombreArchivo, data: blob });
+        return true;
+      } catch (error) {
+        if (error && error.code !== 'declined') {
+          Util.toast(`No se pudo descargar el archivo (${error.code || 'error'}).`, 'error');
+        }
+        return false;
+      }
+    }
+    Util.descargarBlob(blob, nombreArchivo);
+    return true;
+  },
+
   descargarBlob(blob, nombreArchivo) {
     const url = URL.createObjectURL(blob);
     const enlace = document.createElement('a');
@@ -255,6 +281,8 @@ const App = {
   vistaActual: 'inicio',
 
   init() {
+    // Dentro de claude.ai no existe diálogo de impresión: se ocultan esos botones
+    if (window.claude && typeof window.claude.use === 'function') document.body.classList.add('en-artifact');
     Almacen.cargar();
     Proyectos.init();
     Insumos.init();
@@ -332,9 +360,8 @@ const App = {
     });
     document.querySelectorAll('.simbolo-moneda').forEach(e => { e.textContent = Util.simboloMoneda(); });
 
-    document.getElementById('btn-respaldar').addEventListener('click', () => {
-      Almacen.exportarJSON();
-      Util.toast('Respaldo JSON descargado.');
+    document.getElementById('btn-respaldar').addEventListener('click', async () => {
+      if (await Almacen.exportarJSON()) Util.toast('Respaldo JSON descargado.');
     });
 
     const archivo = document.getElementById('archivo-importar');
